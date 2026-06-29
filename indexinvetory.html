@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockMate — Inventory Management</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --blue:#1a56db;
+  --blue-dark:#1e429f;
+  --blue-light:#ebf5ff;
+  --green:#057a55;
+  --green-light:#f3faf7;
+  --red:#c81e1e;
+  --red-light:#fdf2f2;
+  --amber:#b45309;
+  --amber-light:#fffbeb;
+  --gray-50:#f9fafb;
+  --gray-100:#f3f4f6;
+  --gray-200:#e5e7eb;
+  --gray-300:#d1d5db;
+  --gray-400:#9ca3af;
+  --gray-500:#6b7280;
+  --gray-600:#4b5563;
+  --gray-700:#374151;
+  --gray-800:#1f2937;
+  --gray-900:#111827;
+  --white:#ffffff;
+  --radius:8px;
+  --radius-lg:12px;
+}
+
+body{
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:var(--gray-100);
+  color:var(--gray-800);
+  min-height:100vh;
+}
+
+/* ── TOP NAV ── */
+.topnav{
+  background:var(--blue-dark);
+  padding:0 28px;
+  height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+}
+.brand-icon i{color:#fff;font-size:18px}
+.brand-name{font-size:17px;font-weight:700;color:#fff;letter-spacing:.3px}
+.brand-tag{font-size:11px;color:#93c5fd;margin-top:1px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-badge{
+  background:rgba(255,255,255,.15);
+  color:#fff;
+  font-size:12px;
+  padding:4px 12px;
+  border-radius:99px;
+  display:flex;align-items:center;gap:5px;
+}
+.nav-badge i{font-size:14px}
+
+/* ── LAYOUT ── */
+.main{max-width:1100px;margin:0 auto;padding:28px 20px}
+
+/* ── STATS STRIP ── */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin-bottom:24px;
+}
+
+.stat-card{
+  background:var(--white);
+  border:1px solid var(--gray-200);
+  border-radius:var(--radius-lg);
+  padding:18px 20px;
+}
+
+.stat-card-top{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+}
+
+.stat-icon{
+  width:38px;height:38px;border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;
+}
+
+.stat-icon.blue{background:var(--blue-light);color:var(--blue)}
+.stat-icon.green{background:var(--green-light);color:var(--green)}
+.stat-icon.red{background:var(--red-light);color:var(--red)}
+.stat-icon.amber{background:var(--amber-light);color:var(--amber)}
+.stat-icon i{font-size:20px}
+
+.stat-label{font-size:12px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.stat-value{font-size:26px;font-weight:700;color:var(--gray-900);line-height:1}
+.stat-sub{font-size:12px;color:var(--gray-400);margin-top:4px}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--white);
+  border:1px solid var(--gray-200);
+  border-radius:var(--radius-lg);
+  margin-bottom:20px;
+  overflow:hidden;
+}
+
+.panel-header{
+  padding:16px 20px;
+  border-bottom:1px solid var(--gray-200);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--gray-50);
+}
+
+.panel-title{
+  font-size:14px;font-weight:700;color:var(--gray-700);
+  display:flex;align-items:center;gap:7px;
+}
+
+.panel-title i{font-size:17px;color:var(--blue)}
+.panel-body{padding:20px}
+
+/* ── ADD FORM ── */
+.form-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr auto;
+  gap:10px;
+  align-items:end;
+}
+
+.field label{
+  display:block;
+  font-size:11px;font-weight:700;
+  color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:5px;
+}
+
+.field input,.field select{
+  width:100%;
+  padding:9px 12px;
+  font-size:14px;
+  border:1px solid var(--gray-300);
+  border-radius:var(--radius);
+  background:var(--white);
+  color:var(--gray-800);
+  transition:border-color .15s;
+}
+
+.field input:focus,.field select:focus{
+  outline:none;
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(26,86,219,.1);
+}
+
+.btn{
+  padding:9px 18px;
+  font-size:13px;font-weight:700;
+  border:none;border-radius:var(--radius);
+  cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:all .15s;
+  white-space:nowrap;
+}
+
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #fecaca}
+.btn-danger:hover{background:#fde8e8}
+.btn-warning{background:var(--amber-light);color:var(--amber);border:1px solid #fcd34d}
+.btn-warning:hover{background:#fef3c7}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn i{font-size:15px}
+
+/* ── SEARCH / FILTER BAR ── */
+.toolbar{
+  padding:14px 20px;
+  border-bottom:1px solid var(--gray-200);
+  display:flex;align-items:center;gap:10px;
+  background:var(--gray-50);
+}
+
+.search-wrap{position:relative;flex:1}
+.search-wrap i{
+  position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  font-size:16px;color:var(--gray-400);pointer-events:none;
+}
+.search-wrap input{
+  width:100%;padding:8px 12px 8px 36px;
+  font-size:13px;border:1px solid var(--gray-300);
+  border-radius:var(--radius);background:var(--white);color:var(--gray-800);
+}
+.search-wrap input:focus{outline:none;border-color:var(--blue)}
+
+.filter-select{
+  padding:8px 12px;font-size:13px;
+  border:1px solid var(--gray-300);border-radius:var(--radius);
+  background:var(--white);color:var(--gray-700);cursor:pointer;
+}
+
+.filter-select:focus{outline:none;border-color:var(--blue)}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+
+thead th{
+  padding:11px 16px;
+  text-align:left;
+  font-size:11px;font-weight:700;
+  color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid var(--gray-200);
+  background:var(--gray-50);
+  cursor:pointer;
+  user-select:none;
+  white-space:nowrap;
+}
+
+thead th:hover{background:var(--gray-100);color:var(--gray-700)}
+thead th .sort-icon{margin-left:4px;opacity:.4;font-size:12px}
+thead th.sorted .sort-icon{opacity:1;color:var(--blue)}
+
+tbody td{
+  padding:12px 16px;
+  border-bottom:1px solid var(--gray-100);
+  color:var(--gray-700);
+  vertical-align:middle;
+}
+
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafbff}
+
+.td-name{font-weight:600;color:var(--gray-900)}
+.td-sku{font-size:11px;color:var(--gray-400);margin-top:2px;font-family:monospace}
+
+/* Badges */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:99px;
+  font-size:11px;font-weight:700;
+}
+
+.badge-blue{background:var(--blue-light);color:var(--blue)}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-amber{background:var(--amber-light);color:var(--amber)}
+.badge-gray{background:var(--gray-100);color:var(--gray-500)}
+
+/* Stock indicator */
+.stock-cell{display:flex;align-items:center;gap:8px}
+.stock-bar-wrap{width:60px;height:5px;background:var(--gray-200);border-radius:99px;overflow:hidden}
+.stock-bar{height:100%;border-radius:99px;transition:width .3s}
+.bar-green{background:#10b981}
+.bar-amber{background:#f59e0b}
+.bar-red{background:#ef4444}
+
+/* Actions */
+.actions{display:flex;gap:6px}
+
+/* Empty state */
+.empty{
+  text-align:center;padding:3rem 0;color:var(--gray-400);
+}
+.empty i{font-size:40px;display:block;margin-bottom:10px;color:var(--gray-300)}
+.empty p{font-size:14px}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  padding:12px 18px;border-radius:var(--radius);
+  font-size:13px;font-weight:600;
+  display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 16px rgba(0,0,0,.15);
+  transform:translateY(80px);opacity:0;
+  transition:all .3s;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:#057a55;color:#fff}
+.toast.error{background:#c81e1e;color:#fff}
+.toast.info{background:#1a56db;color:#fff}
+.toast i{font-size:17px}
+
+/* Modal overlay */
+.overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(17,24,39,.45);
+  z-index:200;
+  align-items:center;justify-content:center;
+}
+.overlay.open{display:flex}
+
+.modal{
+  background:var(--white);
+  border-radius:var(--radius-lg);
+  padding:28px;
+  width:420px;
+  max-width:95vw;
+  box-shadow:0 20px 40px rgba(0,0,0,.2);
+}
+
+.modal-title{
+  font-size:16px;font-weight:700;color:var(--gray-900);
+  margin-bottom:20px;
+  display:flex;align-items:center;gap:8px;
+}
+.modal-title i{font-size:20px;color:var(--blue)}
+
+.modal-field{margin-bottom:14px}
+.modal-field label{
+  display:block;font-size:11px;font-weight:700;
+  color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;
+}
+.modal-field input,.modal-field select{
+  width:100%;padding:9px 12px;font-size:14px;
+  border:1px solid var(--gray-300);border-radius:var(--radius);
+  color:var(--gray-800);
+}
+.modal-field input:focus,.modal-field select:focus{
+  outline:none;border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(26,86,219,.1);
+}
+
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.btn-ghost{background:var(--gray-100);color:var(--gray-700);border:1px solid var(--gray-200)}
+.btn-ghost:hover{background:var(--gray-200)}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="brand">
+    <div class="brand-icon"><i class="ti ti-package"></i></div>
+    <div>
+      <div class="brand-name">GoStock</div>
+      <div class="brand-tag">Inventory Management System</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-badge"><i class="ti ti-clock"></i><span id="clockDisplay"></span></div>
+    <div class="nav-badge"><i class="ti ti-database"></i><span id="navItemCount">0 items</span></div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <div class="stat-label">Total Products</div>
+        <div class="stat-icon blue"><i class="ti ti-package"></i></div>
+      </div>
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-sub">across all categories</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <div class="stat-label">Total Stock</div>
+        <div class="stat-icon green"><i class="ti ti-stack"></i></div>
+      </div>
+      <div class="stat-value" id="statStock">0</div>
+      <div class="stat-sub">units in warehouse</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <div class="stat-label">Inventory Value</div>
+        <div class="stat-icon amber"><i class="ti ti-coin"></i></div>
+      </div>
+      <div class="stat-value" id="statValue">₱0</div>
+      <div class="stat-sub">total estimated value</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-top">
+        <div class="stat-label">Low Stock</div>
+        <div class="stat-icon red"><i class="ti ti-alert-triangle"></i></div>
+      </div>
+      <div class="stat-value" id="statLow">0</div>
+      <div class="stat-sub">items need restocking</div>
+    </div>
+  </div>
+
+  <!-- Add Product Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><i class="ti ti-plus"></i> Add new product</div>
+    </div>
+    <div class="panel-body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Product name</label>
+          <input type="text" id="inName" placeholder="e.g. Wireless Mouse">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select id="inCategory">
+            <option value="">Select...</option>
+            <option>Electronics</option>
+            <option>Office Supplies</option>
+            <option>Furniture</option>
+            <option>Food & Beverage</option>
+            <option>Clothing</option>
+            <option>Tools</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Quantity</label>
+          <input type="number" id="inQty" placeholder="0" min="0">
+        </div>
+        <div class="field">
+          <label>Unit price (₱)</label>
+          <input type="number" id="inPrice" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" onclick="addProduct()">
+            <i class="ti ti-plus"></i> Add
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inventory Table Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title"><i class="ti ti-table"></i> Inventory list</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" style="background:var(--green-light);color:var(--green);border:1px solid #a7f3d0" onclick="exportCSV()">
+          <i class="ti ti-download"></i> Export CSV
+        </button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <i class="ti ti-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by name or SKU..." oninput="renderTable()">
+      </div>
+      <select class="filter-select" id="filterCategory" onchange="renderTable()">
+        <option value="">All categories</option>
+        <option>Electronics</option>
+        <option>Office Supplies</option>
+        <option>Furniture</option>
+        <option>Food & Beverage</option>
+        <option>Clothing</option>
+        <option>Tools</option>
+        <option>Other</option>
+      </select>
+      <select class="filter-select" id="filterStatus" onchange="renderTable()">
+        <option value="">All stock levels</option>
+        <option value="ok">In stock</option>
+        <option value="low">Low stock</option>
+        <option value="out">Out of stock</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('sku')">SKU <i class="ti ti-arrows-sort sort-icon"></i></th>
+            <th onclick="sortBy('name')">Product <i class="ti ti-arrows-sort sort-icon"></i></th>
+            <th onclick="sortBy('category')">Category <i class="ti ti-arrows-sort sort-icon"></i></th>
+            <th onclick="sortBy('qty')">Stock <i class="ti ti-arrows-sort sort-icon"></i></th>
+            <th onclick="sortBy('price')">Unit price <i class="ti ti-arrows-sort sort-icon"></i></th>
+            <th onclick="sortBy('value')">Total value <i class="ti ti-arrows-sort sort-icon"></i></th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Edit Modal -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-edit"></i> Edit product</div>
+    <input type="hidden" id="editId">
+    <div class="modal-field">
+      <label>Product name</label>
+      <input type="text" id="editName">
+    </div>
+    <div class="modal-field">
+      <label>Category</label>
+      <select id="editCategory">
+        <option>Electronics</option>
+        <option>Office Supplies</option>
+        <option>Furniture</option>
+        <option>Food & Beverage</option>
+        <option>Clothing</option>
+        <option>Tools</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Quantity</label>
+      <input type="number" id="editQty" min="0">
+    </div>
+    <div class="modal-field">
+      <label>Unit price (₱)</label>
+      <input type="number" id="editPrice" min="0" step="0.01">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()"><i class="ti ti-check"></i> Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Restock Modal -->
+<div class="overlay" id="restockOverlay">
+  <div class="modal">
+    <div class="modal-title"><i class="ti ti-plus"></i> Restock product</div>
+    <input type="hidden" id="restockId">
+    <div class="modal-field">
+      <label>Product</label>
+      <input type="text" id="restockName" disabled style="background:var(--gray-100)">
+    </div>
+    <div class="modal-field">
+      <label>Add quantity</label>
+      <input type="number" id="restockQty" min="1" placeholder="e.g. 50">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRestock()"><i class="ti ti-plus"></i> Add stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="ti ti-check" id="toastIcon"></i><span id="toastMsg"></span></div>
+
+<script>
+
+var inventory = [];
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzMKBPAXWzzkXVm35AtiGKQ-sQwYCAg6dOrtH7eDW3bU_7Oo12Qt0ONZINJ81p3Mjk/exec";
+var sortKey = "name";
+var sortAsc = true;
+var skuCounter = 1000;
+
+
+var updateClock = function() {
+  document.getElementById("clockDisplay").textContent = new Date().toLocaleTimeString();
+};
+setInterval(updateClock, 1000);
+updateClock();
+
+
+var generateSKU = function(category) {
+  var prefix = {
+    "Electronics": "ELC",
+    "Office Supplies": "OFC",
+    "Furniture": "FRN",
+    "Food & Beverage": "FNB",
+    "Clothing": "CLT",
+    "Tools": "TLS",
+    "Other": "OTH"
+  };
+  skuCounter++;
+  return (prefix[category] || "ITM") + "-" + skuCounter;
+};
+
+
+var getStatus = function(qty) {
+  if (qty === 0) return "out";
+  if (qty <= 10) return "low";
+  return "ok";
+};
+
+
+var statusBadge = function(qty) {
+  var s = getStatus(qty);
+  if (s === "out") return '<span class="badge badge-red"><i class="ti ti-x"></i> Out of stock</span>';
+  if (s === "low") return '<span class="badge badge-amber"><i class="ti ti-alert-triangle"></i> Low stock</span>';
+  return '<span class="badge badge-green"><i class="ti ti-check"></i> In stock</span>';
+};
+
+
+var categoryBadge = function(cat) {
+  var map = {
+    "Electronics":"badge-blue",
+    "Furniture":"badge-gray",
+    "Food & Beverage":"badge-green",
+    "Clothing":"badge-amber",
+    "Tools":"badge-gray",
+    "Office Supplies":"badge-blue",
+    "Other":"badge-gray"
+  };
+  return '<span class="badge ' + (map[cat] || "badge-gray") + '">' + cat + '</span>';
+};
+
+/* ── STOCK BAR HTML (anonymous function) ── */
+var stockBar = function(qty) {
+  var pct = Math.min(100, (qty / 100) * 100);
+  var cls = qty === 0 ? "bar-red" : qty <= 10 ? "bar-amber" : "bar-green";
+  return '<div class="stock-cell"><span>' + qty + '</span><div class="stock-bar-wrap"><div class="stock-bar ' + cls + '" style="width:' + pct + '%"></div></div></div>';
+};
+
+/* ── ADD PRODUCT ── */
+var addProduct = function() {
+  var name = document.getElementById("inName").value.trim();
+  var category = document.getElementById("inCategory").value;
+  var qty = parseInt(document.getElementById("inQty").value);
+  var price = parseFloat(document.getElementById("inPrice").value);
+
+  if (!name) {
+    showToast("Enter a product name.", "error");
+    return;
+  }
+
+  if (!category) {
+    showToast("Select a category.", "error");
+    return;
+  }
+
+  if (isNaN(qty) || qty < 0) {
+    showToast("Enter a valid quantity.", "error");
+    return;
+  }
+
+  if (isNaN(price) || price < 0) {
+    showToast("Enter a valid price.", "error");
+    return;
+  }
+
+  var product = {
+    id: Date.now(),
+    sku: generateSKU(category),
+    name: name,
+    category: category,
+    qty: qty,
+    price: price,
+    added: new Date().toLocaleDateString()
+  };
+
+  inventory.push(product);
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      product: name,
+      category: category,
+      stock: qty,
+      unitPrice: price
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    showToast("Saved to Google Sheet!", "success");
+  })
+  .catch(error => {
+    console.error(error);
+    showToast("Failed to save to Google Sheet.", "error");
+  });
+
+  document.getElementById("inName").value = "";
+  document.getElementById("inCategory").value = "";
+  document.getElementById("inQty").value = "";
+  document.getElementById("inPrice").value = "";
+
+  renderTable();
+  updateStats();
+};
+
+var deleteProduct = function(id) {
+  var item = inventory.find(function(p){ return p.id === id; });
+  if (!item) return;
+  inventory = inventory.filter(function(p){ return p.id !== id; });
+  renderTable();
+  updateStats();
+  showToast(item.name + " removed.", "info");
+};
+
+
+var openEdit = function(id) {
+  var item = inventory.find(function(p){ return p.id === id; });
+  if (!item) return;
+  document.getElementById("editId").value = id;
+  document.getElementById("editName").value = item.name;
+  document.getElementById("editCategory").value = item.category;
+  document.getElementById("editQty").value = item.qty;
+  document.getElementById("editPrice").value = item.price;
+  document.getElementById("editOverlay").classList.add("open");
+};
+
+
+var saveEdit = function() {
+  var id = parseInt(document.getElementById("editId").value);
+  var name = document.getElementById("editName").value.trim();
+  var category = document.getElementById("editCategory").value;
+  var qty = parseInt(document.getElementById("editQty").value);
+  var price = parseFloat(document.getElementById("editPrice").value);
+
+  if (!name || isNaN(qty) || isNaN(price)) { showToast("Fill in all fields.", "error"); return; }
+
+  inventory = inventory.map(function(p) {
+    if (p.id === id) {
+      return { id:p.id, sku:p.sku, name:name, category:category, qty:qty, price:price, added:p.added };
+    }
+    return p;
+  });
+
+  closeModal();
+  renderTable();
+  updateStats();
+  showToast(name + " updated.", "success");
+};
+
+var openRestock = function(id) {
+  var item = inventory.find(function(p){ return p.id === id; });
+  if (!item) return;
+  document.getElementById("restockId").value = id;
+  document.getElementById("restockName").value = item.name;
+  document.getElementById("restockQty").value = "";
+  document.getElementById("restockOverlay").classList.add("open");
+};
+
+
+var saveRestock = function() {
+  var id = parseInt(document.getElementById("restockId").value);
+  var add = parseInt(document.getElementById("restockQty").value);
+  if (isNaN(add) || add <= 0) { showToast("Enter a valid quantity to add.", "error"); return; }
+
+  inventory = inventory.map(function(p) {
+    if (p.id === id) return Object.assign({}, p, { qty: p.qty + add });
+    return p;
+  });
+
+  closeModal();
+  renderTable();
+  updateStats();
+  showToast("Stock updated.", "success");
+};
+
+
+var closeModal = function() {
+  document.getElementById("editOverlay").classList.remove("open");
+  document.getElementById("restockOverlay").classList.remove("open");
+};
+
+
+var sortBy = function(key) {
+  if (sortKey === key) { sortAsc = !sortAsc; }
+  else { sortKey = key; sortAsc = true; }
+  renderTable();
+};
+
+
+var getFiltered = function() {
+  var search = document.getElementById("searchInput").value.toLowerCase();
+  var catFilter = document.getElementById("filterCategory").value;
+  var statusFilter = document.getElementById("filterStatus").value;
+
+  return inventory
+    .filter(function(p) {
+      var matchSearch = !search || p.name.toLowerCase().includes(search) || p.sku.toLowerCase().includes(search);
+      var matchCat = !catFilter || p.category === catFilter;
+      var matchStatus = !statusFilter || getStatus(p.qty) === statusFilter;
+      return matchSearch && matchCat && matchStatus;
+    })
+    .sort(function(a, b) {
+      var av = sortKey === "value" ? a.qty * a.price : a[sortKey];
+      var bv = sortKey === "value" ? b.qty * b.price : b[sortKey];
+      if (typeof av === "string") av = av.toLowerCase();
+      if (typeof bv === "string") bv = bv.toLowerCase();
+      if (av < bv) return sortAsc ? -1 : 1;
+      if (av > bv) return sortAsc ? 1 : -1;
+      return 0;
+    });
+};
+
+
+var renderTable = function() {
+  var items = getFiltered();
+  var tbody = document.getElementById("tableBody");
+
+  if (items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><i class="ti ti-mood-empty"></i><p>No products found.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = items.map(function(p) {
+    var value = (p.qty * p.price).toLocaleString("en-PH", { minimumFractionDigits:2, maximumFractionDigits:2 });
+    var priceStr = p.price.toLocaleString("en-PH", { minimumFractionDigits:2, maximumFractionDigits:2 });
+    return '<tr>' +
+      '<td><span style="font-family:monospace;font-size:12px;color:var(--gray-400)">' + p.sku + '</span></td>' +
+      '<td><div class="td-name">' + p.name + '</div><div class="td-sku">Added ' + p.added + '</div></td>' +
+      '<td>' + categoryBadge(p.category) + '</td>' +
+      '<td>' + stockBar(p.qty) + '</td>' +
+      '<td>₱' + priceStr + '</td>' +
+      '<td style="font-weight:600;color:var(--gray-900)">₱' + value + '</td>' +
+      '<td>' + statusBadge(p.qty) + '</td>' +
+      '<td><div class="actions">' +
+        '<button class="btn btn-sm btn-warning" onclick="openRestock(' + p.id + ')" title="Restock"><i class="ti ti-plus"></i></button>' +
+        '<button class="btn btn-sm" style="background:var(--blue-light);color:var(--blue);border:1px solid #bfdbfe" onclick="openEdit(' + p.id + ')" title="Edit"><i class="ti ti-edit"></i></button>' +
+        '<button class="btn btn-sm btn-danger" onclick="deleteProduct(' + p.id + ')" title="Delete"><i class="ti ti-trash"></i></button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join("");
+};
+
+
+var updateStats = function() {
+  var total = inventory.length;
+  var totalQty = inventory.reduce(function(s, p){ return s + p.qty; }, 0);
+  var totalVal = inventory.reduce(function(s, p){ return s + p.qty * p.price; }, 0);
+  var low = inventory.filter(function(p){ return getStatus(p.qty) !== "ok"; }).length;
+
+  document.getElementById("statTotal").textContent = total;
+  document.getElementById("statStock").textContent = totalQty.toLocaleString();
+  document.getElementById("statValue").textContent = "₱" + totalVal.toLocaleString("en-PH", {minimumFractionDigits:0,maximumFractionDigits:0});
+  document.getElementById("statLow").textContent = low;
+  document.getElementById("navItemCount").textContent = total + " item" + (total !== 1 ? "s" : "");
+};
+
+
+var exportCSV = function() {
+  var headers = ["SKU","Product Name","Category","Quantity","Unit Price","Total Value","Status"];
+  var rows = inventory.map(function(p) {
+    return [p.sku, p.name, p.category, p.qty, p.price.toFixed(2), (p.qty*p.price).toFixed(2), getStatus(p.qty)];
+  });
+  var csv = [headers].concat(rows).map(function(r){ return r.join(","); }).join("\n");
+  var blob = new Blob([csv], { type:"text/csv" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "inventory_" + new Date().toISOString().slice(0,10) + ".csv";
+  a.click();
+  showToast("CSV exported.", "success");
+};
+
+/* ── TOAST ── */
+var showToast = function(msg, type) {
+  var icons = { success:"ti-circle-check", error:"ti-circle-x", info:"ti-info-circle" };
+  var t = document.getElementById("toast");
+  document.getElementById("toastMsg").textContent = msg;
+  document.getElementById("toastIcon").className = "ti " + (icons[type] || "ti-info-circle");
+  t.className = "toast " + (type || "info") + " show";
+  setTimeout(function(){ t.className = "toast " + (type || "info"); }, 3000);
+};
+
+
+document.getElementById("editOverlay").addEventListener("click", function(e){
+  if (e.target === this) closeModal();
+});
+document.getElementById("restockOverlay").addEventListener("click", function(e){
+  if (e.target === this) closeModal();
+});
+
+
+var seedData = function() {
+  var seeds = [
+    { name:"Wireless Keyboard", category:"Electronics", qty:45, price:1299 },
+    { name:"USB-C Hub 7-in-1", category:"Electronics", qty:8, price:2499 },
+    { name:"Ergonomic Chair", category:"Furniture", qty:12, price:8500 },
+    { name:"A4 Bond Paper (500s)", category:"Office Supplies", qty:200, price:285 },
+    { name:"Standing Desk", category:"Furniture", qty:0, price:12000 },
+    { name:"Bottled Water 500ml", category:"Food & Beverage", qty:96, price:22 },
+    { name:"Polo Shirt (L)", category:"Clothing", qty:5, price:650 },
+    { name:"Power Drill 18V", category:"Tools", qty:15, price:3200 }
+  ];
+  seeds.forEach(function(s) {
+    inventory.push({
+      id: Date.now() + Math.random(),
+      sku: generateSKU(s.category),
+      name: s.name,
+      category: s.category,
+      qty: s.qty,
+      price: s.price,
+      added: new Date().toLocaleDateString()
+    });
+  });
+  renderTable();
+  updateStats();
+};
+
+seedData();
+</script>
+</body>
+</html>
